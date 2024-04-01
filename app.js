@@ -1,37 +1,19 @@
 const boxEl = document.querySelector(".box");
+const channel = new BroadcastChannel("box-position-channel");
+channel.onmessage = ({ data: { x, y } }) => {
+  boxEl.style.left = x + "px";
+  boxEl.style.top = y + "px";
+};
 boxEl.addEventListener("mousedown", (e) => {
   let isDragging = true;
-  let offsetX = e.offsetX;
-  let offsetY = e.offsetY;
-  document.addEventListener("mousemove", (e) => {
-    if (isDragging) {
-      localStorage.setItem(
-        "boxPosition",
-        JSON.stringify({ x: e.clientX - offsetX, y: e.clientY - offsetY })
-      );
-      boxEl.style.left =
-        JSON.parse(localStorage.getItem("boxPosition")).x + "px";
-      boxEl.style.top =
-        JSON.parse(localStorage.getItem("boxPosition")).y + "px";
-    }
-  });
-  document.addEventListener("mouseup", () => {
+  window.addEventListener("mouseup", () => {
     isDragging = false;
   });
-});
-
-window.addEventListener("load", () => {
-    if (localStorage.getItem("boxPosition")) {
-        boxEl.style.left =
-        JSON.parse(localStorage.getItem("boxPosition")).x + "px";
-        boxEl.style.top =
-        JSON.parse(localStorage.getItem("boxPosition")).y + "px";
+  window.addEventListener("mousemove", (e) => {
+    if (isDragging) {
+      channel.postMessage({ x: e.clientX -50, y: e.clientY -50});
+      boxEl.style.left = e.clientX -50 + "px";
+      boxEl.style.top = e.clientY -50 + "px";
     }
-});
-
-window.addEventListener("storage", () => {
-    boxEl.style.left =
-    JSON.parse(localStorage.getItem("boxPosition")).x + "px";
-    boxEl.style.top =
-    JSON.parse(localStorage.getItem("boxPosition")).y + "px";
+  });
 });
